@@ -41,14 +41,52 @@ fcst_model      <- CONFIG$verif$fcst_model
 lead_time       <- CONFIG$verif$lead_time
 fclen           <- CONFIG$pre$fclen
 
+# Function to add hours to a date string in YYYYMMDD, YYYYMMDDhh, or YYYYMMDDhhmm format
+add_hours_to_date <- function(date_string, hours_to_add) {
+  # Convert date_string to character if it's not already
+  if (!is.character(date_string)) {
+    date_string <- as.character(date_string)
+  }
+  
+  # Define format based on the length of the input date string
+  if (nchar(date_string) == 8) {
+    format <- "%Y%m%d"
+  } else if (nchar(date_string) == 10) {
+    format <- "%Y%m%d%H"
+  } else if (nchar(date_string) == 12) {
+    format <- "%Y%m%d%H%M"
+  } else {
+    stop("Invalid date string format. Please provide a string in YYYYMMDD, YYYYMMDDhh, or YYYYMMDDhhmm format.")
+  }
+  
+  # Convert date string to POSIXct object
+  date <- as.POSIXct(date_string, format = format)
+  
+  # Convert hours_to_add to numeric if it's provided as a string
+  if (is.character(hours_to_add)) {
+    hours_to_add <- as.numeric(hours_to_add)
+  }
+  
+  # Add hours
+  date_with_hours_added <- date + hours_to_add * 3600  # 3600 seconds in an hour
+  
+  # Convert back to desired format
+  final_date_string <- format(date_with_hours_added, format = format)
+  
+  return(final_date_string)
+}
 
-cat("Collecting vobs data  from ",start_date," to ",end_date)
+final_end_date <- add_hours_to_date(end_date, fclen)
+
+
+cat("Collecting vobs data  from ",start_date," to ",final_end_date)
 cat("vobs path es",vobs_path)
 
 obs_data <- read_obs(
-  dttm=seq_dates(start_date,end_date+24),
+  dttm=seq_dates(start_date,final_end_date),
   file_path    = vobs_path,
-  output_format_opts = obstable_opts(path=obs_path)
+  file_template = "vobs",
+  output_format = "obstable",
+  output_format_opts = obstable_opts(path=obs_path,template="obstable")
   )
-
 

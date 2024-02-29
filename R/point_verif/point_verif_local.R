@@ -169,7 +169,7 @@ run_verif <- function(prm_info, prm_name) {
   # Check for errors removing obs that are more than a certain number 
   # of standard deviations from the forecast. You could add a number 
   # of standard deviations to use in the params list
-  fcst <- check_obs_against_fcst(fcst, prm_name)
+  fcst <- check_obs_against_fcst(fcst, {{prm_name}})
   
   # Make sure that grps is a list so that it adds on the vertical 
   # coordinate group correctly
@@ -220,7 +220,7 @@ run_verif <- function(prm_info, prm_name) {
   }
     
   verif <- get(verif_fn)(
-    fcst, prm_name, thresholds = prm_info$thresholds, groupings = grps_c
+    fcst, {{prm_name}}, thresholds = prm_info$thresholds, groupings = grps_c
   )
   verif <- fn_verif_rename(verif)
   verif_toplot <- verif # Used for passing to plotting script (as it may be modified below)
@@ -232,7 +232,7 @@ run_verif <- function(prm_info, prm_name) {
     # Group by valid_hour for profiles (threshold scores not required)
     grps_vh  <- lapply(grps_c,function(x) gsub("lead_time","valid_hour",x))
     verif_vh <-  get(verif_fn)(
-      fcst, prm_name, thresholds = NULL, groupings = grps_vh
+      fcst, {{prm_name}}, thresholds = NULL, groupings = grps_vh
     )
     verif_vh <- fn_verif_rename(verif_vh)
       
@@ -241,7 +241,7 @@ run_verif <- function(prm_info, prm_name) {
     # Assuming threshold scores are not required
     grps_vd  <- lapply(grps_c,function(x) gsub("lead_time","valid_dttm",x))
     verif_vd <- get(verif_fn)(
-      fcst, prm_name, thresholds = NULL, groupings = grps_vd
+      fcst, {{prm_name}}, thresholds = NULL, groupings = grps_vd
     )
     verif_vd <- fn_verif_rename(verif_vd)
    
@@ -257,7 +257,7 @@ run_verif <- function(prm_info, prm_name) {
       print(grps_sid)
     }
     verif_sid <- get(verif_fn)(
-      fcst, prm_name, thresholds = NULL, groupings = grps_sid
+      fcst, {{prm_name}}, thresholds = NULL, groupings = grps_sid
     )
     verif_sid <- fn_verif_rename(verif_sid)
     # Need to add lat/lon to the SIDs
@@ -273,7 +273,7 @@ run_verif <- function(prm_info, prm_name) {
       # Hence we add a NULL below (NB: this may not be required with updated version of harp)
       grps_nolt <- append(grps_nolt,list(NULL)) 
       verif_alllt <- get(verif_fn)(
-        fcst, prm_name, thresholds = prm_info$thresholds, groupings = grps_nolt
+        fcst, {{prm_name}}, thresholds = prm_info$thresholds, groupings = grps_nolt
       )
       verif_alllt <- fn_verif_rename(verif_alllt)
       # Add in indication that we use all lead_times (important for plotting script and for binding below)

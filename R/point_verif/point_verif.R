@@ -5,10 +5,13 @@
 #renv::load("/perm/sp3c/deode_verif")
 
 # Basic script to run point verification and generate the corresponding rds files
+
 library(harp)
 library(purrr)
 library(argparse)
 library(here)
+library(RSQLite)
+library(dplyr)
 
 # sometimes it is useful to be able to use command-line-arguments.
 # Adding here the options most usually need to be changed
@@ -17,6 +20,7 @@ library(here)
 
 ###
 source(Sys.getenv('CONFIG_R'))
+
 ###
 parser <- ArgumentParser()
 
@@ -53,21 +57,67 @@ obs_path   <- CONFIG$verif$obs_path
 verif_path <- CONFIG$verif$verif_path
 grps       <- CONFIG$verif$grps
 
+
 # Some warnings in output
 # Warning from recycling prolly comes from
 # argument file_template. This does not change
 # Default:     file_template = "fctable",
 
+#Function to add '_det' to the last column in an SQLite file if it is not present.
+
+
+# Function to update the last column name in an SQLite file
+update_last_column_name <- function(file_path, suffix) {
+  # Connect to SQLite database
+  con <- dbConnect(SQLite(), file_path)
+
+  # Get table names from the database
+  tables <- dbListTables(con)
+
+  # Iterate through each table
+  for (table in tables) {
+    # Read the table into a data frame
+    df <- dbReadTable(con, table)
+
+    # Get the name of the last column
+    last_column_name <- names(df)[ncol(df)]
+
+    # Check if the last column name doesn't end with the specified suffix
+    if (!endsWith(last_column_name, suffix)) {
+      # Add the suffix to the name of the last column
+      names(df)[ncol(df)] <- paste0(last_column_name, suffix)
+      cat("sqlite_file changed: ")
+      cat(file_path)
+      # Write the updated data frame back to the database
+      dbWriteTable(con, table, df, overwrite = TRUE)
+    }
+  }
+
+  # Disconnect from the database
+  dbDisconnect(con)
+}
+
 #Andrew's verification function below
 # Function that runs the verification
 run_verif <- function(prm_info, prm_name) {
   cat("Verifying ",prm_name,"\n")
+  cat("In fcst_path: ",fcst_path,"\n")
   if (!is.null(prm_info$vc)) {
     vertical_coordinate <- prm_info$vc
   } else {
     vertical_coordinate <- NA_character_
   }
   
+# Get a list of SQLite files in the folder
+sqlite_files <- list.files(path = fcst_path, pattern = "\\.sqlite$", full.names = TRUE, recursive=TRUE)
+cat("sqlite_files found: ")
+cat(sqlite_files,"\n")
+
+#for (file_path in sqlite_files) {
+#  cat("updating:",file_path,"\n")
+#  update_last_column_name(file_path, '_det')
+#}
+
   # Read the forecast
   fcst <- read_point_forecast(
          dttm=seq_dttm(start_date,end_date,by_step),
@@ -92,7 +142,7 @@ run_verif <- function(prm_info, prm_name) {
   # function with a named list containing the arguments. ##
   if (!is.null(prm_info$scale_fcst)) {
     fcst <- do.call(
-      scale_param,list(fcst, prm_info$scale_obs$scaling, prm_info$scale_obs$new_units, prm_info$scale_obs$mult)
+      scale_param,list(fcst, prm_info$scale_fcst$scaling, prm_info$scale_fcst$new_units, prm_info$scale_fcst$mult)
     )
   }
   # Read the observations getting the dates and stations from 
@@ -121,7 +171,7 @@ run_verif <- function(prm_info, prm_name) {
   # Check for errors removing obs that are more than a certain number 
   # of standard deviations from the forecast. You could add a number 
   # of standard deviations to use in the params list 
-  fcst <- check_obs_against_fcst(fcst, prm_name)
+  fcst <- check_obs_against_fcst(fcst, {{prm_name}})
 
   # Make sure that grps is a list so that it adds on the vertical 
   # coordinate group correctly
@@ -139,11 +189,11 @@ run_verif <- function(prm_info, prm_name) {
   # Do the verification
   if (fcst_type == "eps") {
     verif <- ens_verify(
-      fcst, prm_name, thresholds = prm_info$thresholds, groupings = grps
+      fcst, {{prm_name}}, thresholds = prm_info$thresholds, groupings = grps
     )
   } else {
     verif <- det_verify(
-      fcst, prm_name, thresholds = prm_info$thresholds, groupings = grps
+      fcst, {{prm_name}}, thresholds = prm_info$thresholds, groupings = grps
     )
   }
   

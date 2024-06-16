@@ -12,11 +12,11 @@ set -x
 #### STEP 1: Path to your scritps, name of your verification (It will be the name of your output folder & will be shown in the shiny apps)
 
 export VERIF_DIR=$PERM/deode_project/DE_330-verif-scripts/ #Put here location of your copy of DE_330's HARP point verification scripts
-export CASE_STUDY=nl_eunice2022 # Define here a name for your verification exercise.
-#export CASE_STUDY=AQCE_201701
-cd $VERIF_DIR
+export CASE_STUDY=name_your_case # Define here a name for your verification exercise.
 
 ######### NO NEED IN PRINCIPLE TO CHANGE THINGS IN THIS BLOCK: #######
+cd $VERIF_DIR
+
 # Function to replace placeholders with environment variables
 replace_vars() {
   local input="$1"
@@ -39,15 +39,15 @@ replace_vars "${CONFIG_DIR}/${CONFIG_TEMPLATE}" > "${CONFIG_YAML}"
 export CONFIG_YAML CONFIG_R
 
 ######## STEP 2: Customize below which parts of the verification you need to run
-export RUN_POINT_VERF=no
-export RUN_POINT_VERF_LOCAL=yes
+export RUN_POINT_VERF=yes
+export RUN_POINT_VERF_LOCAL=no
 export RUN_VOBS2SQL=no
 export RUN_INTERPOL2SQL=no
 export RUN_VFLD2SQL=no
 export SCORECARDS=no
 export SHOW_WEB_STATIC=no
 export SHOW_WEB_DYNAMIC=no
-export SHINY_PORT=3678 # Change this number if port is busy when launching web from ATOS' virtual desktop
+export SHINY_PORT=3677 # Change this number if port is busy when launching web from ATOS' virtual desktop
 export UPDATE_SHINYAPPS=no
 ######
 

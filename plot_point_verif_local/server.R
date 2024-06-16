@@ -8,7 +8,9 @@ library(here)
 server <- function(input, output, session) {
   
   # Get path to cases directory
-  basedir <- as.character(normalizePath(file.path(paste0(here(),'/cases/'))))
+  basedir <- as.character(normalizePath(file.path(paste0(here(),'/plot_point_verif_local/cases/'))))
+  print("basedir es")
+  print(basedir)
   # Get list of PNG files in cases directory (recursively)
   png_files <- list.files(path = file.path(basedir), pattern = "\\.png",recursive=TRUE)
   #Separate list elements into components with / and - separators
@@ -20,14 +22,21 @@ server <- function(input, output, session) {
   my_table <- do.call(rbind, split_list)
   my_table_df <- as.data.frame(my_table)
   colnames(my_table_df) = c("EXP","A","B","C","D","E","F","G","H","I","J")
+  print("original table")
+  print(head(my_table_df, 2))
   my_table_df$F <- paste(my_table_df$F, my_table_df$G, sep = "-")
-  my_table_df = subset(my_table_df, select = -c(J,G) )
+  my_table_df = subset(my_table_df, select = -c(J,G))
+  #my_table_df= subset(my_table_df, select = c(EXP,A,B,C,D,E,F,H,I))
+  print("subset table")
+  print(head(my_table_df, 2))
   colnames(my_table_df) =c("EXP","Variable","Run_type","Metric","submetric","runs","period","Area","fc_length")
   
   j<-unlist(my_table_df)
   my_table_df<-matrix(j,nrow=nrow(my_table_df),ncol=length(j)/nrow(my_table_df))
   my_table_df <- as.data.frame(my_table_df)
   colnames(my_table_df) =c("var_one","var_six","var_four","var_seven","var_eight","var_five","var_two","var_three","var_nine")
+  print("final table")
+  print(head(my_table_df,2))
   tib <- as_tibble(my_table_df)
   tib %<>% mutate(across(where(is.character),as_factor))
   

@@ -97,27 +97,29 @@ update_last_column_name <- function(file_path, suffix) {
   dbDisconnect(con)
 }
 
+# Get a list of SQLite files in the folder
+sqlite_files <- list.files(path = fcst_path, pattern = "\\.sqlite$", full.names = TRUE, recursive=TRUE)
+cat("Number of sqlite_files found: ")
+cat(sum(lengths(sqlite_files)),"\n")
+
+#Commented section below is used sometimes when original FCTABLE files don't have the variable value in a column named *_det:
+#for (file_path in sqlite_files) {
+#  cat("updating:",file_path,"\n")
+#  update_last_column_name(file_path, '_det')
+#}
+
+
 #Andrew's verification function below
 # Function that runs the verification
 run_verif <- function(prm_info, prm_name) {
   cat("Verifying ",prm_name,"\n")
-  cat("In fcst_path: ",fcst_path,"\n")
+  cat("Looking for FCTABLE*sqlite files in fcst_path: ",fcst_path,"\n")
   if (!is.null(prm_info$vc)) {
     vertical_coordinate <- prm_info$vc
   } else {
     vertical_coordinate <- NA_character_
   }
   
-# Get a list of SQLite files in the folder
-sqlite_files <- list.files(path = fcst_path, pattern = "\\.sqlite$", full.names = TRUE, recursive=TRUE)
-cat("sqlite_files found: ")
-cat(sqlite_files,"\n")
-
-#for (file_path in sqlite_files) {
-#  cat("updating:",file_path,"\n")
-#  update_last_column_name(file_path, '_det')
-#}
-
   # Read the forecast
   fcst <- read_point_forecast(
          dttm=seq_dttm(start_date,end_date,by_step),
@@ -171,7 +173,7 @@ cat(sqlite_files,"\n")
   # Check for errors removing obs that are more than a certain number 
   # of standard deviations from the forecast. You could add a number 
   # of standard deviations to use in the params list 
-  fcst <- check_obs_against_fcst(fcst, {{prm_name}})
+  fcst <- check_obs_against_fcst(fcst, prm_name)
 
   # Make sure that grps is a list so that it adds on the vertical 
   # coordinate group correctly

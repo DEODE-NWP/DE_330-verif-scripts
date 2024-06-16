@@ -14,8 +14,11 @@
 
 library(yaml)
 
-conf_get_config <- function(){  
-  CONFIG <- yaml.load_file(Sys.getenv('CONFIG_YAML') )
+# Function to replace placeholders with environment variable values
+
+conf_get_config <- function(){
+  CONFIG_FILE <-Sys.getenv('CONFIG_YAML')	
+  CONFIG <- yaml.load_file(CONFIG_FILE)  
   CONFIG$params_details = conf_get_params_details()
   CONFIG
 }
@@ -88,9 +91,7 @@ conf_get_params_details <- function(){
         thresholds = RH2m_thr
          ),   
                 CCtot  = list (
-        thresholds = RH2m_thr,
-        scale_fcst = list(scaling = 12.5, new_units = "%", mult= TRUE),
-        scale_obs  = list(scaling = 12.5, new_units = "%", mult= TRUE)	
+        thresholds = RH2m_thr
          ),   
                   	Cbase  = list (
         thresholds = Cbase_thr
@@ -99,7 +100,7 @@ conf_get_params_details <- function(){
         thresholds = Pmsl_thr
          ),
                      Pmsl  = list (
-        thresholds = Pmsl_thr 
+        thresholds = Pmsl_thr
           ),
                      vis  = list (
         thresholds = vis_thr

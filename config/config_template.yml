@@ -1,23 +1,19 @@
-#Section to define paths for the pre-processing
-# This section will be used by the scripts under pre_processing
+#General: define start and end date for your verification
 shared:
-  start_date: 2018101400
-  end_date:   2018101500
-  
+        start_date:
+        end_date:
+
+
+#Section to define paths for the pre-processing
+#This section will be used by the scripts under /pre_processing
 pre:
-  fclen: 24
-  vfld_path: "/ec/res4/scratch/sp3c/deode_verif/cases/Aude_2018/vflds/"
-  vobs_path: "/ec/res4/scratch/sp3c/deode_verif/cases/Aude_2018/vobs/"
+  fclen: 48
+  vfld_path: "${VERIF_DIR}/cases/${CASE_STUDY}/vfld/"
+  vobs_path: "${VERIF_DIR}/cases/${CASE_STUDY}/vobs/"
   by_vobs_step: "1h"
   vfld_template:  #include one for each model if they are different. 
     - "vfld"
   do_all: TRUE # if true, it will ignore list of parameters and do all that is available in the vfld files
-  model_output_path: "/ec/res4/scratch/sp3c/deode_verif/grbs/Aude_2018/"
-  fcst_templates:  # Write template names of grib/fa files if forecast data needs to be interpolated to stations
-   - "{fcst_model}/{YYYY}/{MM}/{DD}/{HH}/historic.arome.aude_500-500m000+0{LDT3}_00.grib"
-#  clim_file: "/ec/res4/scratch/sp3c/deode_verif/grbs/austria_2022/ref_cy43/ICMSHAROM+0000"
-#  clim_param: "SPECSURFGEOPOTEN"
-  interp_method: "nearest"
   params:
     - Pcp
     - AccPcp1h
@@ -49,26 +45,29 @@ pre:
     - Q2m
 
 #Section to define paths for the verification
-# This section will be used by the scripts under verification
+# This section will be used by the scripts under /verification
 verif:
-  by_step: "6h"
-  fcst_model:
-    - ref500m
-  lead_time: seq(0,4,1)
-  fcst_type: "det" #det or eps
+  by_step: "24h" #Period in hours between runs
+  fcst_model: #Names of the reference & HR experiments
+    - Exp_A
+    - Exp_B
+    - etc...
+
+  lead_time: seq(0, 48, 1)
+  fcst_type: "det" #det or eps (do not change)
   grps: "leadtime"
-  fcst_path: "/perm/sp3c/deode_verif/cases/Aude_2018/FCTABLE"
-  obs_path: "/perm/sp3c/deode_verif/cases/Aude_2018/OBSTABLE"
-  verif_path: "/perm/sp3c/deode_verif/cases/Aude_2018/output/verif_results"
+  fcst_path: "${VERIF_DIR}/cases/${CASE_STUDY}/FCTABLE"  #PATH to your FCTABLES*sqlites
+  obs_path: "${VERIF_DIR}/cases/${CASE_STUDY}/OBSTABLE"  #PATH to your OBSTABLES*sqlites
+  verif_path: "${VERIF_DIR}/cases/${CASE_STUDY}/output/verif_results"
 #Section to define the paths for the output
 # This section will be used by the plotting scripts
 post:
-  plot_output: "/perm/sp3c/deode_verif/cases/Aude_2018/output"
-  rds_path: "/perm/sp3c/deode_verif/cases/Aude_2018/verif_rds"
+  plot_output: "${VERIF_DIR}/cases/${CASE_STUDY}/output"
+  rds_path: "${VERIF_DIR}/cases/${CASE_STUDY}/verif_rds"
 #This section if only for the scorecards
 scorecards:
-  ref_model: ref500m
-  fcst_model: ref500m
+  ref_model: -Exp_A
+  fcst_model: -Exp_B
   params: 
     - T2m
     - S10m

@@ -1,16 +1,16 @@
 #Section to define paths for the pre-processing
 # This section will be used by the scripts under pre_processing
 shared:
-  start_date: 2022050200
-  end_date: 2022050300
+  start_date: 2021122500
+  end_date: 2021122500
   
 pre:
   fclen: 48
-  vfld_path: "/ec/res4/scratch/sp3c/deode_verif/cases/Spain_202205/vfld/"
-  vobs_path: "/ec/res4/scratch/sp3c/deode_verif/cases/Spain_202205/vobs/"
-  by_vobs_step: "1h"
+  vfld_path: /ec/res4/scratch/sp3c/deode_verif/cases/ireland_2021/vfld/
+  vobs_path: /ec/res4/scratch/sp3c/deode_verif/cases/ireland_2021/vobs/
+  by_vobs_step: 1h
   vfld_template:  #include one for each model if they are different. 
-    - "vfld"
+    - vfld
   do_all: TRUE # if true, it will ignore list of parameters and do all that is available in the vfld files
   params:
     - Pcp
@@ -45,25 +45,26 @@ pre:
 #Section to define paths for the verification
 # This section will be used by the scripts under verification
 verif:
-  by_step: "6h"
+  by_step: 24h
   fcst_model:
-    - dini20a_case
-    - deode_dk500_june11
+    - deode_ierain_ref
+#    - dept_ierain_vhrifs_2500
+#    - dept_ierain_ref_2500
   lead_time: seq(0, 48, 1)
-  fcst_type: "det" #det or eps
-  grps: "lead_time"
-  fcst_path: "/perm/sp3c/harmonie_release/gitdeodeverif/DE_330-verif-scripts/cases/Spain_202205/FCTABLE"
-  obs_path: "/perm/sp3c/harmonie_release/gitdeodeverif/DE_330-verif-scripts/cases/Spain_202205/OBSTABLE"
-  verif_path: "/perm/sp3c/harmonie_release/gitdeodeverif/DE_330-verif-scripts/cases/Spain_202205/output/verif_results"
+  fcst_type: det #det or eps
+  grps: leadtime
+  fcst_path: /perm/sp3c/DE_330-verif-scripts_phase1/cases/ireland_2021/FCTABLE
+  obs_path: /perm/sp3c/DE_330-verif-scripts_phase1/cases/ireland_2021/OBSTABLE
+  verif_path: /perm/sp3c/deode_project/DE_330-verif-scripts//cases/ireland_2021/output/verif_results
 #Section to define the paths for the output
 # This section will be used by the plotting scripts
 post:
-  plot_output: "/perm/sp3c//harmonie_release/gitdeodeverif/DE_330-verif-scripts/cases/Spain_202205/output"
-  rds_path: "/perm/sp3c/deode_verif20/cases/Spain_202205/verif_rds"
+  plot_output: /perm/sp3c/deode_project/DE_330-verif-scripts//cases/ireland_2021/output
+  rds_path: /perm/sp3c/deode_project/DE_330-verif-scripts//cases/ireland_2021/verif_rds
 #This section if only for the scorecards
 scorecards:
-  ref_model: AIB_46h1_de2
-  fcst_model: VAL500m_46h1_de2
+  ref_model: deode_ierain_ref
+  fcst_model: deode_ierain_ref
   params: 
     - T2m
     - S10m
@@ -84,5 +85,4 @@ scorecards:
     - Td2m                       
     - Tmax                                           
     - Tmin                                               
-    - vis
-
+    - vis  
